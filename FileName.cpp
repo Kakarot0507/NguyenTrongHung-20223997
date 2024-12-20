@@ -1,110 +1,50 @@
-﻿//Ex1 
-#include <iostream>
+﻿#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-// Hàm hoán đổi giá trị giữa hai biến
-void swap(int& a, int& b) {
-    int temp = a;
-    a = b;
-    b = temp;
+#define MAX_TITLE_LEN 100
+
+typedef struct Node {
+    char title[MAX_TITLE_LEN];
+    char type[20]; // Chapter, Section, ...
+    int startPage;
+    int endPage;
+    struct Node* firstChild;
+    struct Node* nextSibling;
+} Node;
+
+//Node* createNode(char* title, char* type, int startPage, int endPage) { //tao node moi
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    strcpy(newNode->title, title);
+    strcpy(newNode->type, type);
+    newNode->startPage = startPage;
+    newNode->endPage = endPage;
+    newNode->firstChild = NULL;
+    newNode->nextSibling = NULL;
+    return newNode;
 }
-
-void sortColors(int colors[], int n) {
-    int low = 0, mid = 0, high = n - 1;
-
-    while (mid <= high) {
-        if (colors[mid] == 0) { // Đỏ
-            swap(colors[low], colors[mid]);
-            low++;
-            mid++;
-        }
-        else if (colors[mid] == 1) { // Trắng
-            mid++;
-        }
-        else { // Xanh
-            swap(colors[mid], colors[high]);
-            high--;
+//int countChapters(Node* root) // dem so chuong
+    if (root == NULL) return 0;
+    int count = (strcmp(root->type, "Chapter") == 0) ? 1 : 0;
+    for (Node* child = root->firstChild; child != NULL; child = child->nextSibling) {
+        count += countChapters(child);
+    }
+    return count;
+}
+//Node* findLongestChapter(Node* root) {// tim chuong dai nhat
+    if (root == NULL) return NULL;
+    Node* longest = NULL;
+    int maxPages = 0;
+    if (strcmp(root->type, "Chapter") == 0 && root->endPage - root->startPage + 1 > maxPages) {
+        longest = root;
+        maxPages = root->endPage - root->startPage + 1;
+    }
+    for (Node* child = root->firstChild; child != NULL; child = child->nextSibling) {
+        Node* temp = findLongestChapter(child);
+        if (temp != NULL && temp->endPage - temp->startPage + 1 > maxPages) {
+            longest = temp;
+            maxPages = temp->endPage - temp->startPage + 1;
         }
     }
-}
-
-int main() {
-    int n;
-    std::cout << "Nhập số lượng đối tượng: ";
-    std::cin >> n;
-
-    int colors[100]; // Giả sử tối đa 100 đối tượng
-    std::cout << "Nhập các đối tượng (0: đỏ, 1: trắng, 2: xanh): ";
-    for (int i = 0; i < n; ++i) {
-        std::cin >> colors[i];
-    }
-
-    sortColors(colors, n);
-
-    std::cout << "Kết quả sắp xếp: ";
-    for (int i = 0; i < n; ++i) {
-        std::cout << colors[i] << " ";
-    }
-    std::cout << std::endl;
-
-    return 0;
-}
-//EX2 
-#include<stdio.h>
-#include<math.h>
-#include<iostream>
-using namespace std;
-int songuyento(int n){
-	for(int i=2; i<=sqrt(n); i++){
-		if(n%i==0){
-			return 0;
-		} 
-	}
-	return 1;
-} 
-int soNUAnguyento(int n){
-	for(int i=2; i<n; i++ ){
-		for(int j=2; j<n; j++){
-			if(songuyento(i)&&songuyento(j)==1){
-				if(i*j==n){
-					return 1;
-				}
-			}
-		}
-	}return 0;
-}
-int main(){
-	int a[100], blumNumber[100];
-	int count=0;
-	for(int i=0;i<100;i++){
-		a[i]=i+1;
-	}
-	for(int i=0;i<100;i++){
-		if(soNUAnguyento(a[i])==1){
-			blumNumber[count++]=a[i];	 
-		}	
-	}
-	for(int i=0;i<count;i++){
-		for(int j=0;j<count;j++){
-			int sum=blumNumber[j]+blumNumber[i];
-			for(int k=0;k<count;k++){
-				if(sum==blumNumber[k]){  //tong 2 so blum bang so 1 blum trong day blumNumber
-					cout << "(" << blumNumber[i] << ", " << blumNumber[j] << ")" << endl;
-				}
-			}
-		}		
-	}
-	int M;
-	bool check=false;
-	cout<<"nhap M:";
-	cin>>M;
-	for(int i=0;i<count;i++){
-		if(M==blumNumber[i]){
-			check=true;//cout<<"M co ton tai trong day Blum"<< endl;
-		} 
-	}
-	if(check==true){
-		cout<<"M co ton tai trong day Blum"<< endl;
-	} else cout<<"khong ton tai";	 
-}
-    return 0;
+    return longest;
 }
